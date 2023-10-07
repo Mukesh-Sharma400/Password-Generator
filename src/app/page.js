@@ -318,6 +318,12 @@ const ContentWrapper = styled.div`
   align-items: center;
   justify-content: center;
   gap: 15px;
+  @media (max-width: 376px) {
+    width: 350px;
+  }
+  @media (max-width: 321px) {
+    width: 300px;
+  }
 `;
 
 const Heading = styled.p`
