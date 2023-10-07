@@ -134,8 +134,43 @@ const Home = () => {
       includeNumbers,
       includeSymbols
     );
+
+    const passwordStrength = getPasswordStrength(newPassword);
+
     setPassword(newPassword);
+    setStrengthLevel(passwordStrength);
   };
+
+  const getPasswordStrength = (password) => {
+    if (password.length < 8) {
+      return "Low";
+    }
+
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSymbols = /[!@#$%^&*()_\-+=]/.test(password);
+
+    if (hasUppercase && hasLowercase && hasNumbers && hasSymbols) {
+      return "Very High";
+    } else if (
+      (hasUppercase && hasLowercase && hasNumbers) ||
+      (hasLowercase && hasNumbers && hasSymbols) ||
+      (hasUppercase && hasNumbers && hasSymbols)
+    ) {
+      return "High";
+    } else if (
+      (hasUppercase && hasLowercase) ||
+      (hasLowercase && hasNumbers) ||
+      (hasNumbers && hasSymbols)
+    ) {
+      return "Medium";
+    } else {
+      return "Low";
+    }
+  };
+
+  const [strengthLevel, setStrengthLevel] = useState("");
 
   const handleSnackbarOpen = (message) => {
     setSnackbarMessage(message);
@@ -217,12 +252,29 @@ const Home = () => {
             <StrengthWrapper>
               <StrengthText>Strength</StrengthText>
               <StrengthValue>
-                <StrengthValueText>Medium</StrengthValueText>
+                <StrengthValueText>{strengthLevel}</StrengthValueText>
                 <StrengthValueBoxes>
-                  <StrengthValueBox filled={true} />
-                  <StrengthValueBox filled={true} />
-                  <StrengthValueBox filled={false} />
-                  <StrengthValueBox filled={false} />
+                  <StrengthValueBox
+                    filled={
+                      strengthLevel === "Low" ||
+                      strengthLevel === "Medium" ||
+                      strengthLevel === "High" ||
+                      strengthLevel === "Very High"
+                    }
+                  />
+                  <StrengthValueBox
+                    filled={
+                      strengthLevel === "Medium" ||
+                      strengthLevel === "High" ||
+                      strengthLevel === "Very High"
+                    }
+                  />
+                  <StrengthValueBox
+                    filled={
+                      strengthLevel === "High" || strengthLevel === "Very High"
+                    }
+                  />
+                  <StrengthValueBox filled={strengthLevel === "Very High"} />
                 </StrengthValueBoxes>
               </StrengthValue>
             </StrengthWrapper>
