@@ -347,6 +347,7 @@ const Password = styled.input`
   background: transparent;
   width: 100%;
   font-family: "JetBrains-Mono-Extra-Bold";
+  color: #ffffff;
 `;
 
 const CopyButton = styled(ContentCopyRoundedIcon)`
