@@ -1,43 +1,139 @@
 "use client";
 
 import styled from "styled-components";
-import { Tooltip } from "@mui/material";
-import { useRef, useState } from "react";
 import Slider from "@mui/material/Slider";
 import MuiAlert from "@mui/material/Alert";
-import Snackbar from "@mui/material/Snackbar";
-import CustomCheckbox from "./CustomCheckbox";
+import React, { useState, useRef } from "react";
+import { Tooltip, Snackbar } from "@mui/material";
+import DoneSharpIcon from "@mui/icons-material/DoneSharp";
 import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 
-export default function Home() {
+const CheckboxWrapper = styled.label`
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+`;
+
+const HiddenCheckbox = styled.input.attrs({ type: "checkbox" })`
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+`;
+
+const StyledCheckbox = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border: 2px solid ${(props) => (props.checked ? "#a9fab3" : "#a9fab3")};
+  background-color: ${(props) => (props.checked ? "#a9fab3" : "transparent")};
+  border-radius: 0px;
+  margin-right: 10px;
+  transition: all 0.2s;
+  &:hover {
+    border: 2px solid #a9fab3;
+  }
+`;
+
+const CheckmarkIcon = styled(DoneSharpIcon)`
+  display: ${(props) => (props.checked ? "block" : "none")};
+  font-size: 13px;
+  text-align: center;
+  color: #24232b;
+`;
+
+const Label = styled.p`
+  font-size: 13px;
+`;
+
+const CustomCheckbox = ({ checked, onChange, label }) => {
+  const [isChecked, setIsChecked] = useState(checked);
+  const handleCheckboxChange = () => {
+    setIsChecked(!isChecked);
+    onChange(!isChecked, label);
+  };
+
+  return (
+    <CheckboxWrapper>
+      <HiddenCheckbox checked={isChecked} onChange={handleCheckboxChange} />
+      <StyledCheckbox checked={isChecked}>
+        <CheckmarkIcon checked={isChecked} />
+      </StyledCheckbox>
+      <Label>{label}</Label>
+    </CheckboxWrapper>
+  );
+};
+
+const generateRandomPassword = (
+  length,
+  includeUppercase,
+  includeLowercase,
+  includeNumbers,
+  includeSymbols
+) => {
+  let charset = "";
+  if (includeUppercase) {
+    charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  }
+  if (includeLowercase) {
+    charset += "abcdefghijklmnopqrstuvwxyz";
+  }
+  if (includeNumbers) {
+    charset += "0123456789";
+  }
+  if (includeSymbols) {
+    charset += "!@#$%^&*()_-+=";
+  }
+  if (charset.length === 0) {
+    charset =
+      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-+=";
+  }
+  let password = "";
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * charset.length);
+    password += charset.charAt(randomIndex);
+  }
+  return password;
+};
+
+const Home = () => {
   const [password, setPassword] = useState("");
   const [value, setValue] = useState(10);
   const passwordRef = useRef(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [checkboxStates, setCheckboxStates] = useState({
+    "Include Uppercase Letters": false,
+    "Include Lowercase Letters": false,
+    "Include Numbers": false,
+    "Include Symbols": false,
+  });
 
   const handleSliderChange = (event, newValue) => {
     setValue(newValue);
   };
 
-  const handleCheckboxChange = (isChecked) => {
-    console.log("Checkbox checked:", isChecked);
+  const handleCheckboxChange = (label, isChecked) => {
+    setCheckboxStates((prevStates) => ({
+      ...prevStates,
+      [label]: isChecked,
+    }));
   };
 
-  function generateRandomPassword(length) {
-    const charset =
-      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-+=";
-    let password = "";
-    for (let i = 0; i < length; i++) {
-      const randomIndex = Math.floor(Math.random() * charset.length);
-      password += charset.charAt(randomIndex);
-    }
-    return password;
-  }
-
   const handleGeneratePassword = () => {
-    const newPassword = generateRandomPassword(value);
+    const includeUppercase = checkboxStates["Include Uppercase Letters"];
+    const includeLowercase = checkboxStates["Include Lowercase Letters"];
+    const includeNumbers = checkboxStates["Include Numbers"];
+    const includeSymbols = checkboxStates["Include Symbols"];
+    const newPassword = generateRandomPassword(
+      value,
+      includeUppercase,
+      includeLowercase,
+      includeNumbers,
+      includeSymbols
+    );
     setPassword(newPassword);
   };
 
@@ -72,7 +168,7 @@ export default function Home() {
               ref={passwordRef}
               placeholder="PTx1f5DaFX"
             />
-            <Tooltip title="Click to Copy Password" placement="top">
+            <Tooltip title="Click to Copy Password" placement="top" arrow>
               <CopyButton onClick={handleCopyPassword} />
             </Tooltip>
           </PasswordWrapper>
@@ -88,24 +184,36 @@ export default function Home() {
               min={5}
               max={15}
             />
-            <CheckboxWrapper>
+            <CheckboxesWrapper>
               <CustomCheckbox
                 label="Include Uppercase Letters"
-                onChange={handleCheckboxChange}
+                checked={checkboxStates["Include Uppercase Letters"]}
+                onChange={(isChecked) =>
+                  handleCheckboxChange("Include Uppercase Letters", isChecked)
+                }
               />
               <CustomCheckbox
                 label="Include Lowercase Letters"
-                onChange={handleCheckboxChange}
+                checked={checkboxStates["Include Lowercase Letters"]}
+                onChange={(isChecked) =>
+                  handleCheckboxChange("Include Lowercase Letters", isChecked)
+                }
               />
               <CustomCheckbox
                 label="Include Numbers"
-                onChange={handleCheckboxChange}
+                checked={checkboxStates["Include Numbers"]}
+                onChange={(isChecked) =>
+                  handleCheckboxChange("Include Numbers", isChecked)
+                }
               />
               <CustomCheckbox
                 label="Include Symbols"
-                onChange={handleCheckboxChange}
+                checked={checkboxStates["Include Symbols"]}
+                onChange={(isChecked) =>
+                  handleCheckboxChange("Include Symbols", isChecked)
+                }
               />
-            </CheckboxWrapper>
+            </CheckboxesWrapper>
             <StrengthWrapper>
               <StrengthText>Strength</StrengthText>
               <StrengthValue>
@@ -126,7 +234,7 @@ export default function Home() {
       </DisplayWrapper>
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={2000} // Adjust the duration as needed
+        autoHideDuration={2000}
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
@@ -141,7 +249,7 @@ export default function Home() {
       </Snackbar>
     </>
   );
-}
+};
 
 const DisplayWrapper = styled.div`
   position: absolute;
@@ -166,7 +274,6 @@ const Heading = styled.p`
 
 const PasswordWrapper = styled.div`
   height: 50px;
-
   width: 100%;
   background: #24232b;
   display: flex;
@@ -254,7 +361,7 @@ const StyledSlider = styled(Slider)({
   },
 });
 
-const CheckboxWrapper = styled.div`
+const CheckboxesWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -323,3 +430,5 @@ const GenerateButton = styled.button`
 `;
 
 const RightArrow = styled(ArrowForwardRoundedIcon)``;
+
+export default Home;
