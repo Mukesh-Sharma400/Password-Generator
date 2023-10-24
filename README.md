@@ -27,4 +27,17 @@ To run the Password Generator App locally, follow these steps:
 1. Clone the repository to your local machine:
 
    ```bash
-   git clone https://github.com/yourusername/password-generator-app.git
+   git clone https://github.com/Mukesh-Sharma400/Password-Generator.git
+   ```
+
+2. Install all dependencies by navigating to the project's root directory and running the following command:
+
+   ```bash
+   npm install
+   ```
+
+3. Start the project by running the following command into the project's root directory:
+
+   ```bash
+   npm start
+   ```
